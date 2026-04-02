@@ -129,7 +129,7 @@ export default function Layout({children}){
             </button>
 
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
               <User size={14} className="text-white" />
             </div>
           </div>

@@ -51,7 +51,7 @@ export default function SpendingBreakdownChart() {
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Spending Breakdown</h3>
       <div className="flex flex-col sm:flex-row items-center gap-4">
-        <div className="w-48 h-48 flex-shrink-0">
+        <div className="w-48 h-48 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -75,7 +75,7 @@ export default function SpendingBreakdownChart() {
           {data.slice(0, 8).map((item, i) => (
             <div key={item.name} className="flex items-center gap-2">
               <div
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                className="w-2.5 h-2.5 rounded-full shrink-0"
                 style={{ backgroundColor: COLORS[i % COLORS.length] }}
               />
               <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
