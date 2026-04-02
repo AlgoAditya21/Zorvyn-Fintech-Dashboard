@@ -1,152 +1,102 @@
-# Zorvyn Finance Dashboard
-
-A clean, interactive finance dashboard built with **React.js** and **Tailwind CSS**. This application allows users to track and understand their financial activity through visual summaries, transaction management, and insightful analytics.
-
-![React](https://img.shields.io/badge/React-19-blue) ![TailwindCSS](https://img.shields.io/badge/Tailwind-4-06b6d4) ![Vite](https://img.shields.io/badge/Vite-8-646cff)
-
+# Removing Comments from the Project
+ 
+This guide explains how to remove all comments (`//` and `/* */`) from the JS/JSX source files.
+ 
 ---
-
-## Features
-
-### Dashboard Overview
-- **Summary cards** showing Total Balance, Income, Expenses, and Savings
-- **Balance Trend chart** (time-based area chart tracking balance over months)
-- **Spending Breakdown** (categorical pie/donut chart)
-- **Income vs Expenses** (monthly bar chart comparison)
-- **Recent Transactions** list
-
-### Transactions
-- Full transaction list with pagination
-- **Search** by description or category
-- **Filters** by type (income/expense), category, and date range
-- **Sorting** by date, amount, or category
-- Admin can **add, edit, and delete** transactions
-- **Export to CSV or JSON**
-- Responsive table (desktop) and card layout (mobile)
-
-### Insights
-- Highest and lowest spending categories
-- Most expensive month and best savings month
-- Average daily spending
-- Savings rate with health indicator
-- Month-over-month expense trend
-- Spending pattern radar chart
-- Category breakdown with progress bars
-
-### Role-Based UI
-- Toggle between **Admin** and **Viewer** roles via the sidebar
-- **Admin**: Can add, edit, and delete transactions
-- **Viewer**: Read-only access — action buttons are hidden
-
-### Additional Features
-- **Dark mode** toggle with localStorage persistence
-- **Data persistence** via localStorage
-- **Responsive design** — works on mobile, tablet, and desktop
-- **Export functionality** — download transactions as CSV or JSON
-- **Empty/no-data states** handled gracefully throughout
-
----
-
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| React 19 | UI framework |
-| Tailwind CSS 4 | Styling |
-| Vite 8 | Build tool and dev server |
-| React Router 7 | Client-side routing |
-| Recharts | Charts and visualizations |
-| Lucide React | Icons |
-| Context + useReducer | State management |
-
----
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── Layout.jsx              # Sidebar + topbar layout wrapper
-│   ├── SummaryCard.jsx         # Reusable metric card
-│   ├── BalanceTrendChart.jsx   # Area chart for balance over time
-│   ├── SpendingBreakdownChart.jsx  # Donut chart for categories
-│   ├── IncomeExpenseChart.jsx  # Bar chart income vs expenses
-│   ├── RecentTransactions.jsx  # Recent transactions list
-│   └── TransactionModal.jsx    # Add/edit transaction form
-├── context/
-│   └── AppContext.jsx          # Global state (transactions, role, theme, filters)
-├── data/
-│   └── transactions.js         # Mock data generation & localStorage helpers
-├── pages/
-│   ├── Dashboard.jsx           # Main overview page
-│   ├── Transactions.jsx        # Transactions list + filters
-│   └── Insights.jsx            # Analytics & observations
-├── utils/
-│   └── helpers.js              # Formatters, export utilities
-├── App.jsx                     # Router setup
-├── main.jsx                    # Entry point
-└── index.css                   # Tailwind imports + base styles
-```
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- **Node.js** 18+ and **npm**
-
-### Installation
-
-```bash
-# Clone the repository
-git clone <repository-url>
+ 
+## Option 1: PowerShell (Windows)
+ 
+```powershell
 cd finance-dashboard
-
-# Install dependencies
-npm install
-
-# Start development server
+ 
+Get-ChildItem -Path src -Recurse -Include *.js,*.jsx | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    # Remove multi-line comments
+    $content = [regex]::Replace($content, '/\*[\s\S]*?\*/', '')
+    # Remove single-line comments (preserve URLs like http://)
+    $content = [regex]::Replace($content, '(?<!:)//(?!/)[^\n]*', '')
+    # Clean up excessive blank lines
+    $content = [regex]::Replace($content, '(\r?\n){3,}', "`n`n")
+    Set-Content -Path $_.FullName -Value $content -NoNewline
+}
+```
+ 
+## Option 2: macOS / Linux (Bash)
+ 
+```bash
+cd finance-dashboard
+ 
+find src -type f \( -name "*.js" -o -name "*.jsx" \) -exec sed -i '' \
+  -e 's|//.*$||g' \
+  -e '/\/\*/,/\*\//d' {} +
+```
+ 
+## Option 3: Node.js Script
+ 
+Create `remove-comments.mjs` in the project root:
+ 
+```js
+import { readdir, readFile, writeFile } from 'fs/promises';
+import { join, extname } from 'path';
+ 
+const SRC_DIR = 'src';
+const EXTENSIONS = new Set(['.js', '.jsx']);
+ 
+async function getFiles(dir) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...(await getFiles(fullPath)));
+    else if (EXTENSIONS.has(extname(entry.name))) files.push(fullPath);
+  }
+  return files;
+}
+ 
+function removeComments(code) {
+  code = code.replace(/\/\*[\s\S]*?\*\//g, '');
+  code = code.replace(/(?<!:)\/\/(?!\/)[^\n]*/g, '');
+  code = code.replace(/\n{3,}/g, '\n\n');
+  return code.trim() + '\n';
+}
+ 
+const files = await getFiles(SRC_DIR);
+for (const file of files) {
+  const content = await readFile(file, 'utf-8');
+  await writeFile(file, removeComments(content));
+  console.log(`Cleaned: ${file}`);
+}
+console.log(`\nDone. Processed ${files.length} files.`);
+```
+ 
+Run it:
+```bash
+node remove-comments.mjs
+```
+ 
+---
+ 
+## After Removing Comments
+ 
+```bash
+# Verify the build still works
+npm run build
+ 
+# Test the dev server
 npm run dev
 ```
-
-The app will be available at `http://localhost:5173`.
-
-### Build for Production
-
-```bash
-npm run build
-npm run preview
+ 
+## Files Affected
+ 
 ```
-
----
-
-## Approach & Design Decisions
-
-1. **State Management**: Used React Context + `useReducer` for centralized state. This keeps the app simple while properly managing transactions, filters, role, and theme in one place.
-
-2. **Mock Data**: Transactions are auto-generated with realistic patterns (monthly salary, recurring bills, random expenses). Data persists in `localStorage` so it survives page refreshes.
-
-3. **Role-Based UI**: Implemented as a frontend-only simulation via a sidebar toggle. The admin/viewer role controls visibility of add/edit/delete buttons — no routes are restricted, as RBAC is frontend-only per the requirements.
-
-4. **Responsive Design**: The layout uses a collapsible sidebar (hidden on mobile with a hamburger menu). Tables switch to card layouts on smaller screens. All grid layouts adapt from 1 to 4 columns.
-
-5. **Dark Mode**: Toggled via the header, persisted in `localStorage`. Uses Tailwind's `dark:` variant with a class-based strategy.
-
-6. **Charts**: Used Recharts for visualizations — area chart (balance trend), pie/donut chart (spending categories), bar chart (income vs expenses), radar chart (spending patterns), and bar chart (monthly savings).
-
----
-
-## Evaluation Mapping
-
-| Criteria | Implementation |
-|---|---|
-| Dashboard Overview | Summary cards, 3 charts, recent transactions |
-| Transactions Section | Full CRUD, search, filter, sort, pagination, export |
-| Role-Based UI | Admin/Viewer toggle changes add/edit/delete visibility |
-| Insights | 4 insight cards, 3 key metrics, 2 charts, category breakdown |
-| State Management | Context + useReducer for all app state |
-| Responsiveness | Mobile sidebar, adaptive grids, card/table switching |
-| Dark Mode | Theme toggle with persistence |
-| Data Persistence | localStorage for transactions and preferences |
-| Export | CSV and JSON download |
+src/
+├── components/*.jsx
+├── context/AppContext.jsx
+├── data/transactions.js
+├── pages/*.jsx
+├── utils/helpers.js
+├── App.jsx
+└── main.jsx
+```
+ 
+> **Note:** `index.css` is excluded — Tailwind directives like `@import` and `@custom-variant` can resemble comments but are functional code.
