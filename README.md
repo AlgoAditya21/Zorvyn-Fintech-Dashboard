@@ -13,7 +13,7 @@ This is a **frontend-only** application — no backend or database required. It 
 - **Node.js** 18+ and **npm** installed ([download here](https://nodejs.org))
 
 
-Open **[http://localhost:5173](https://zorvyn-fintech-dashboard.vercel.app/)** in your browser.
+Open **(https://zorvyn-fintech-dashboard.vercel.app/)** in your browser.
 
 ## Tech Stack
 
